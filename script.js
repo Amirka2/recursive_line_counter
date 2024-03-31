@@ -1,6 +1,6 @@
 import { createReadStream, statSync, readdirSync } from "fs";
 
-const pathRoot = '../shop/src';
+const pathRoot = '../[PROJECT_NAME]/src';
 
 function getFilePathsArray(dir, files = []) {
     const fileList = readdirSync(dir)
@@ -21,28 +21,32 @@ const countFileLines = function(filePath, callback) {
     let i;
     let count = 0;
 
-    return createReadStream(filePath)
-        .on('error', e => callback(e))
-        .on('data', chunk => {
-            for (i=0; i < chunk.length; ++i) if (chunk[i] === 10) count++;
-        })
-        .on('end', () => callback(null, count));
+    return new Promise((resolve, reject) => {
+        createReadStream(filePath)
+            .on('error', e => reject(e))
+            .on('data', chunk => {
+                for (i=0; i < chunk.length; ++i) if (chunk[i] === 10) count++;
+            })
+            .on('end', () => resolve(count));
+    })
 };
 
 
-const getTotalCount = function (directory) {
+const getTotalCount = async function (directory) {
     const files = getFilePathsArray(directory);
     let totalCount = 0;
 
-    files.forEach((file) => {
-        countFileLines(file, (error, count) => {
-            // console.log(count);
-            // return count;
-            totalCount += count;
-        })
+    Promise.all(files.map(async (file) => {
+        const x = await countFileLines(file);
+
+        totalCount += x;
+
+        return x;
+    }))
+        .then(() => {
+            console.log(totalCount)
+            return totalCount;
     })
-    return totalCount;
 }
 
-const count = getTotalCount(pathRoot)
-console.log(count);
+const count = await getTotalCount(pathRoot)
