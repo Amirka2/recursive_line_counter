@@ -49,6 +49,6 @@ const getTotalCount = async function (directory) {
 }
 
 getTotalCount(pathRoot)
-    .then((res, rej) => {
-        console.log(res)
+    .then((result) => {
+        console.log(result);
     })
