@@ -17,7 +17,7 @@ function getFilePathsArray(dir, files = []) {
     return files
 }
 
-const countFileLines = function(filePath, callback) {
+const countFileLines = function(filePath) {
     let i;
     let count = 0;
 
@@ -36,7 +36,7 @@ const getTotalCount = async function (directory) {
     const files = getFilePathsArray(directory);
     let totalCount = 0;
 
-    Promise.all(files.map(async (file) => {
+    return Promise.all(files.map(async (file) => {
         const x = await countFileLines(file);
 
         totalCount += x;
@@ -44,9 +44,11 @@ const getTotalCount = async function (directory) {
         return x;
     }))
         .then(() => {
-            console.log(totalCount)
             return totalCount;
     })
 }
 
-const count = await getTotalCount(pathRoot)
+getTotalCount(pathRoot)
+    .then((res, rej) => {
+        console.log(res)
+    })
